@@ -17,6 +17,12 @@ BREAKING CHANGES
 * types/rational now extends big.Rat
 * RecentValidator store now take pubkey instead of address, is sorted like Tendermint by pk's address
 * `gaiacli query candidate` takes and argument instead of using the `--address-candidate` flag
+* Staking refactor
+  * store names more understandable
+  * removed temporary ToKick store 
+  * removed distinction between candidates and validators
+    * everything is now a validator
+    * only validators with a status == bonded are actively validating/receiving rewards
 
 FEATURES:
 
@@ -34,6 +40,8 @@ FEATURES:
 * Add more staking query functions: candidates, delegator-bonds
 * Bank module now tags transactions with sender/recipient for indexing & later retrieval
 * Stake module now tags transactions with delegator/candidate for delegation & unbonding, and candidate info for declare candidate / edit candidacy
+* Seperation of fee distribution to a new module
+* Creation of a validator/delegation generics in `/types`
 
 BUG FIXES
 * Gaia now uses stake, ported from github.com/cosmos/gaia
