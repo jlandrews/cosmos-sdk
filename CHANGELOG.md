@@ -46,6 +46,7 @@ FEATURES:
 BUG FIXES
 * Gaia now uses stake, ported from github.com/cosmos/gaia
 * Auto-sequencing now works correctly
+* staking delegator shares exchange rate now relative to equivalent-bonded-tokens the validator has instead of bonded tokens
 
 ## 0.15.1 (April 29, 2018)
 
