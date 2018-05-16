@@ -23,6 +23,7 @@ type Validator interface {
 	GetPubKey() crypto.PubKey // validation pubkey
 	GetPower() Rat            // validation power
 	GetBondHeight() int64     // height in which the validator became active
+	Slash(Context, Rat)       // slash the validator and delegators of the validator by a specified fraction
 }
 
 // validator which fulfills abci validator interface for use in Tendermint

@@ -240,3 +240,6 @@ func (v Validator) GetAddress() sdk.Address   { return v.Address }
 func (v Validator) GetPubKey() crypto.PubKey  { return v.PubKey }
 func (v Validator) GetPower() sdk.Rat         { return v.PShares.Bonded() }
 func (v Validator) GetBondHeight() int64      { return v.BondHeight }
+func (v Validator) Slash(ctx sdk.Context, fraction sdk.Rat) {
+	panic("not implemented")
+}
