@@ -51,7 +51,7 @@ type BaseApp struct {
 	checkState       *state           // for CheckTx
 	deliverState     *state           // for DeliverTx
 	valUpdates       []abci.Validator // cached validator changes from DeliverTx
-	absentValidators []int32          // absent validators from begin block
+	absentValidators [][]byte         // absent validators from begin block
 }
 
 var _ abci.Application = (*BaseApp)(nil)

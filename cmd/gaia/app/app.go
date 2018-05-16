@@ -111,7 +111,7 @@ func MakeCodec() *wire.Codec {
 
 // custom logic for gaia initialization
 func (app *GaiaApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	stateJSON := req.AppStateBytes
+	stateJSON := req.GenesisBytes
 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)

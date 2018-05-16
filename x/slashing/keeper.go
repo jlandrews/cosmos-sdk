@@ -34,6 +34,6 @@ func (k Keeper) handleDoubleSign(ctx sdk.Context, pubkey []byte) {
 }
 
 // TODO swap to pubkey, https://github.com/tendermint/abci/issues/239
-func (k Keeper) handleAbsentValidator(ctx sdk.Context, pubkey int32) {
+func (k Keeper) handleAbsentValidator(ctx sdk.Context, pubkey []byte) {
 	ctx.Logger().With("module", "slashing").Debug(fmt.Sprintf("Absent validator: %s", string(pubkey)))
 }

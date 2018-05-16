@@ -31,7 +31,7 @@ type Context struct {
 
 // create a new context
 func NewContext(ms MultiStore, header abci.Header, isCheckTx bool,
-	txBytes []byte, logger log.Logger, absentValidators []int32) Context {
+	txBytes []byte, logger log.Logger, absentValidators [][]byte) Context {
 
 	c := Context{
 		Context: context.Background(),
@@ -159,8 +159,8 @@ func (c Context) TxBytes() []byte {
 func (c Context) Logger() log.Logger {
 	return c.Value(contextKeyLogger).(log.Logger)
 }
-func (c Context) AbsentValidators() []int32 {
-	return c.Value(contextKeyAbsentValidators).([]int32)
+func (c Context) AbsentValidators() [][]byte {
+	return c.Value(contextKeyAbsentValidators).([][]byte)
 }
 func (c Context) WithMultiStore(ms MultiStore) Context {
 	return c.withValue(contextKeyMultiStore, ms)
@@ -184,7 +184,7 @@ func (c Context) WithTxBytes(txBytes []byte) Context {
 func (c Context) WithLogger(logger log.Logger) Context {
 	return c.withValue(contextKeyLogger, logger)
 }
-func (c Context) WithAbsentValidators(AbsentValidators []int32) Context {
+func (c Context) WithAbsentValidators(AbsentValidators [][]byte) Context {
 	return c.withValue(contextKeyAbsentValidators, AbsentValidators)
 }
 

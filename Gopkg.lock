@@ -253,6 +253,7 @@
   revision = "714f901b98fdb3aa954b4193d8cbd64a28d80cad"
 
 [[projects]]
+  branch = "develop"
   name = "github.com/tendermint/abci"
   packages = [
     "client",
@@ -261,8 +262,7 @@
     "server",
     "types"
   ]
-  revision = "78a8905690ef54f9d57e3b2b0ee7ad3a04ef3f1f"
-  version = "v0.10.3"
+  revision = "ec8079089f862ee51b42082174467a985ea74b09"
 
 [[projects]]
   branch = "master"
@@ -305,6 +305,7 @@
   version = "v0.7.0"
 
 [[projects]]
+  branch = "cwgoes/update-abci"
   name = "github.com/tendermint/tendermint"
   packages = [
     "blockchain",
@@ -313,6 +314,9 @@
     "consensus",
     "consensus/types",
     "evidence",
+    "libs/events",
+    "libs/pubsub",
+    "libs/pubsub/query",
     "lite",
     "lite/client",
     "lite/errors",
@@ -323,7 +327,6 @@
     "p2p",
     "p2p/conn",
     "p2p/pex",
-    "p2p/trust",
     "p2p/upnp",
     "proxy",
     "rpc/client",
@@ -342,8 +345,7 @@
     "types/priv_validator",
     "version"
   ]
-  revision = "26f633ed48441f72895b710f0e87b7b6c6791066"
-  version = "v0.19.1"
+  revision = "f5c7513d93c3c2657abf6192006494a036904c90"
 
 [[projects]]
   name = "github.com/tendermint/tmlibs"
@@ -356,12 +358,10 @@
     "db",
     "flowrate",
     "log",
-    "merkle",
-    "pubsub",
-    "pubsub/query"
+    "merkle"
   ]
-  revision = "d94e312673e16a11ea55d742cefb3e331228f898"
-  version = "v0.8.2"
+  revision = "cc5f287c4798ffe88c04d02df219ecb6932080fd"
+  version = "v0.8.3-rc0"
 
 [[projects]]
   branch = "master"
@@ -460,6 +460,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fad966346d3b6042faf2bf793168b6ce9a8ff59ae207b7ad57008ead0f3ff7d4"
+  inputs-digest = "2c6ff04197827a59ab0a4854a8763e25510ca2e0af896b8e348b6b314c4ef1ff"
   solver-name = "gps-cdcl"
   solver-version = 1
