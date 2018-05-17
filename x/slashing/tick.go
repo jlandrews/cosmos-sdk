@@ -11,7 +11,7 @@ func NewBeginBlocker(sk Keeper) sdk.BeginBlocker {
 		for _, evidence := range req.ByzantineValidators {
 			var pk crypto.PubKey
 			sk.cdc.MustUnmarshalBinary(evidence.PubKey, &pk)
-			sk.handleDoubleSign(ctx, evidence.Height, pk)
+			sk.handleDoubleSign(ctx, evidence.Height, evidence.Time, pk)
 		}
 		for _, pubkey := range req.AbsentValidators {
 			var pk crypto.PubKey

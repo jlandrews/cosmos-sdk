@@ -47,12 +47,9 @@ func NewKeeper(cdc *wire.Codec, key sdk.StoreKey, sk stake.Keeper, codespace sdk
 }
 
 // handle a validator signing two blocks at the same height
-func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, pubkey crypto.PubKey) {
+func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, timestamp int64, pubkey crypto.PubKey) {
 	logger := ctx.Logger().With("module", "slashing")
-	evidenceTimestamp := int64(0)
-	// TODO Calculate double-signed block timestamp, get from Tendermint somehow (ABCI?)
-	currentTimestamp := ctx.BlockHeader().Time
-	age := currentTimestamp - evidenceTimestamp
+	age := ctx.BlockHeader().Time - timestamp
 	if age > MaxEvidenceAge {
 		logger.Info(fmt.Sprintf("Ignored double sign from %v at height %d, age of %d past max age of %d", pubkey.Address(), height, age, MaxEvidenceAge))
 		return
