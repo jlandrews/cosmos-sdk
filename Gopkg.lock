@@ -253,7 +253,7 @@
   revision = "714f901b98fdb3aa954b4193d8cbd64a28d80cad"
 
 [[projects]]
-  branch = "develop"
+  branch = "cwgoes/timestamp-in-evidence"
   name = "github.com/tendermint/abci"
   packages = [
     "client",
@@ -262,7 +262,7 @@
     "server",
     "types"
   ]
-  revision = "ec8079089f862ee51b42082174467a985ea74b09"
+  revision = "435eb273a444af8097369b4686023b5e400b9d01"
 
 [[projects]]
   branch = "master"
@@ -460,6 +460,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2c6ff04197827a59ab0a4854a8763e25510ca2e0af896b8e348b6b314c4ef1ff"
+  inputs-digest = "eac172ce2f69a79e0d8aefed138818227464e9b660df9c44b9ceabe2455bc8b1"
   solver-name = "gps-cdcl"
   solver-version = 1
