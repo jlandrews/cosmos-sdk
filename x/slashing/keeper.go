@@ -48,7 +48,7 @@ func NewKeeper(cdc *wire.Codec, key sdk.StoreKey, sk stake.Keeper, codespace sdk
 
 // handle a validator signing two blocks at the same height
 func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, timestamp int64, pubkey crypto.PubKey) {
-	logger := ctx.Logger().With("module", "slashing")
+	logger := ctx.Logger().With("module", "x/slashing")
 	age := ctx.BlockHeader().Time - timestamp
 	if age > MaxEvidenceAge {
 		logger.Info(fmt.Sprintf("Ignored double sign from %v at height %d, age of %d past max age of %d", pubkey.Address(), height, age, MaxEvidenceAge))
@@ -62,8 +62,9 @@ func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, timestamp int64,
 
 // handle an absent validator
 func (k Keeper) handleAbsentValidator(ctx sdk.Context, pubkey crypto.PubKey) {
+	logger := ctx.Logger().With("module", "x/slashing")
 	height := ctx.BlockHeight()
-	ctx.Logger().With("module", "slashing").Info(fmt.Sprintf("Absent validator %v at height %d", pubkey.Address(), height))
+	logger.Info(fmt.Sprintf("Absent validator %v at height %d", pubkey.Address(), height))
 	// store := ctx.KVStore(k.storeKey)
 }
 
