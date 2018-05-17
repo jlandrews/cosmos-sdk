@@ -1,6 +1,73 @@
 # Changelog
 
-## 0.16.0 (TBD)
+## 0.18.0 (TBD)
+
+BREAKING CHANGES
+
+* [stake] candidate -> validator throughout (details in refactor comment)
+* [stake] delegate-bond -> delegation throughout
+* [stake] `gaiacli query validator` takes and argument instead of using the `--address-candidate` flag
+* [stake] introduce `gaiacli query delegations` 
+* [stake] staking refactor
+  * ValidatorsBonded store now take sorted pubKey-address instead of validator owner-address, 
+    is sorted like Tendermint by pk's address
+  * store names more understandable
+  * removed temporary ToKick store, just needs a local map! 
+  * removed distinction between candidates and validators
+    * everything is now a validator
+    * only validators with a status == bonded are actively validating/receiving rewards
+  * Introduction of Unbonding fields, lowlevel logic throughout (not fully implemented with queue)
+  * Introduction of PoolShares type within validators, 
+    replaces three rational fields (BondedShares, UnbondingShares, UnbondedShares
+
+FEATURES
+
+* [x/auth] Added ability to change pubkey to auth module
+* [baseapp] baseapp now has settable functions for filtering peers by address/port & public key
+* [sdk] Gas consumption is now measured as transactions are executed
+  * Transactions which run out of gas stop execution and revert state changes
+  * A "simulate" query has been added to determine how much gas a transaction will need
+  * Modules can include their own gas costs for execution of particular message types
+* [stake] Seperation of fee distribution to a new module
+* [stake] Creation of a validator/delegation generics in `/types`
+* [stake] Helper Description of the store in x/stake/store.md
+
+BUG FIXES 
+
+* Auto-sequencing now works correctly
+* [stake] staking delegator shares exchange rate now relative to equivalent-bonded-tokens the validator has instead of bonded tokens
+  ^ this is important for unbonded validators in the power store!
+
+
+## 0.17.0 (May 15, 2018)
+
+BREAKING CHANGES
+
+* [stake] MarshalJSON -> MarshalBinary
+* Queries against the store must be prefixed with the path "/store"
+
+FEATURES
+
+* [gaiacli] Support queries for candidates, delegator-bonds
+* [gaiad] Added `gaiad export` command to export current state to JSON
+* [x/bank] Tx tags with sender/recipient for indexing & later retrieval
+* [x/stake] Tx tags with delegator/candidate for delegation & unbonding, and candidate info for declare candidate / edit candidacy
+
+IMPROVEMENTS
+
+* [gaiad] Update for Tendermint v0.19.3 (improve `/dump_consensus_state` and add
+  `/consensus_state`)
+* [spec/ibc] Added spec!
+* [spec/stake] Cleanup structure, include details about slashing and
+  auto-unbonding
+* [spec/governance] Fixup some names and pseudocode
+* NOTE: specs are still a work-in-progress ...
+
+BUG FIXES
+
+* Auto-sequencing now works correctly
+
+## 0.16.0 (May 14th, 2018)
 
 BREAKING CHANGES
 
@@ -15,18 +82,9 @@ BREAKING CHANGES
 * gaiad init now requires use of `--name` flag 
 * Removed Get from Msg interface
 * types/rational now extends big.Rat
-* RecentValidator store now take pubkey instead of address, is sorted like Tendermint by pk's address
-* `gaiacli query candidate` takes and argument instead of using the `--address-candidate` flag
-* Staking refactor
-  * store names more understandable
-  * removed temporary ToKick store 
-  * removed distinction between candidates and validators
-    * everything is now a validator
-    * only validators with a status == bonded are actively validating/receiving rewards
 
 FEATURES:
 
-* Added `gaiad export` command, which exports genesis information & current state
 * Gaia stake commands include, DeclareCandidacy, EditCandidacy, Delegate, Unbond
 * MountStoreWithDB without providing a custom store works.
 * Repo is now lint compliant / GoMetaLinter with tendermint-lint integrated into CI
@@ -38,15 +96,9 @@ FEATURES:
 * Context now has access to the application-configured logger
 * Add (non-proof) subspace query helper functions 
 * Add more staking query functions: candidates, delegator-bonds
-* Bank module now tags transactions with sender/recipient for indexing & later retrieval
-* Stake module now tags transactions with delegator/candidate for delegation & unbonding, and candidate info for declare candidate / edit candidacy
-* Seperation of fee distribution to a new module
-* Creation of a validator/delegation generics in `/types`
 
 BUG FIXES
 * Gaia now uses stake, ported from github.com/cosmos/gaia
-* Auto-sequencing now works correctly
-* staking delegator shares exchange rate now relative to equivalent-bonded-tokens the validator has instead of bonded tokens
 
 ## 0.15.1 (April 29, 2018)
 
