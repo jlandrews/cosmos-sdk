@@ -293,16 +293,13 @@
   version = "v0.6.2"
 
 [[projects]]
-  name = "github.com/tendermint/go-wire"
-  packages = ["."]
-  revision = "ed62928576cfcaf887209dc96142cd79cdfff389"
-  version = "0.9.9"
-
-[[projects]]
+  branch = "develop"
   name = "github.com/tendermint/iavl"
-  packages = ["."]
-  revision = "fd37a0fa3a7454423233bc3d5ea828f38e0af787"
-  version = "v0.7.0"
+  packages = [
+    ".",
+    "sha256truncated"
+  ]
+  revision = "9b6f9c3f49d599cfcf43f1a56c3c22882d1f9f21"
 
 [[projects]]
   branch = "cwgoes/update-abci"
@@ -458,6 +455,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dffe90b1ef2764d5ec706ab8cdb36a478dc86395d8fd6c25e6a82627215cf5fd"
+  inputs-digest = "6b32e635bf8d4737c9f3ed27f25861bd598c5b4ac44b0efd842034bd26ca32fc"
   solver-name = "gps-cdcl"
   solver-version = 1

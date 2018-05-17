@@ -163,6 +163,7 @@ func (c Context) Logger() log.Logger {
 }
 func (c Context) AbsentValidators() [][]byte {
 	return c.Value(contextKeyAbsentValidators).([][]byte)
+}
 func (c Context) GasMeter() GasMeter {
 	return c.Value(contextKeyGasMeter).(GasMeter)
 }
@@ -190,6 +191,7 @@ func (c Context) WithLogger(logger log.Logger) Context {
 }
 func (c Context) WithAbsentValidators(AbsentValidators [][]byte) Context {
 	return c.withValue(contextKeyAbsentValidators, AbsentValidators)
+}
 func (c Context) WithGasMeter(meter GasMeter) Context {
 	return c.withValue(contextKeyGasMeter, meter)
 }
