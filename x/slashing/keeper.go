@@ -1,6 +1,7 @@
 package slashing
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,15 +15,30 @@ const (
 	// TODO Should this be a governance parameter or just modifiable with SoftwareUpgradeProposals?
 	// MaxEvidenceAge = 60 * 60 * 24 * 7 * 3
 	// TODO Temporarily set to 2 minutes for testnets.
-	MaxEvidenceAge = 60 * 2
+	MaxEvidenceAge int64 = 60 * 2
 
 	// SignedBlocksWindow - sliding window for liveness slashing
-	SignedBlocksWindow
+	// TODO Governance parameter?
+	// TODO Temporarily set to 100 blocks for testnets
+	SignedBlocksWindow int64 = 100
+
+	// Liveness slashing threshold - 50%
+	// TODO Governance parameter?
+	MinSignedPerWindow int64 = SignedBlocksWindow / 2
+
+	// Liveness unbond duration - 1 day
+	// TODO Governance parameter?
+	LivenessUnbondDuration int64 = 86400
 )
 
 var (
-	// SlashFractionDoubleSign - currently 5% - should be a governance parameter
+	// SlashFractionDoubleSign - currently 5%
+	// TODO Governance parameter?
 	SlashFractionDoubleSign = sdk.NewRat(1).Quo(sdk.NewRat(20))
+
+	// SlashFractionLiveness - currently 0
+	// TODO Governance parameter?
+	SlashFractionLiveness = sdk.ZeroRat()
 )
 
 // Keeper of the slashing store
@@ -57,28 +73,76 @@ func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, timestamp int64,
 	logger.Info(fmt.Sprintf("Confirmed double sign from %v at height %d, age of %d less than max age of %d", pubkey.Address(), height, age, MaxEvidenceAge))
 	validator := k.stakeKeeper.Validator(ctx, pubkey.Address())
 	validator.Slash(ctx, SlashFractionDoubleSign)
-	logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v", validator.GetAddress(), SlashFractionDoubleSign))
+	logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v for double-sign at height %d", validator.GetAddress(), SlashFractionDoubleSign, height))
 }
 
-// handle an absent validator
-func (k Keeper) handleAbsentValidator(ctx sdk.Context, pubkey crypto.PubKey) {
+// handle a validator signature, must be called once per validator per block
+func (k Keeper) handleValidatorSignature(ctx sdk.Context, pubkey crypto.PubKey, signed bool) {
 	logger := ctx.Logger().With("module", "x/slashing")
 	height := ctx.BlockHeight()
-	logger.Info(fmt.Sprintf("Absent validator %v at height %d", pubkey.Address(), height))
-	// store := ctx.KVStore(k.storeKey)
+	if !signed {
+		logger.Info(fmt.Sprintf("Absent validator %v at height %d", pubkey.Address(), height))
+	}
+	index := height % SignedBlocksWindow
+	address := pubkey.Address()
+	signInfo := k.getValidatorSigningInfo(ctx, address)
+	previous := k.getValidatorSigningBitArray(ctx, address, index)
+	if previous && !signed {
+		k.setValidatorSigningBitArray(ctx, address, index, false)
+		signInfo.SignedBlocksCounter--
+		k.setValidatorSigningInfo(ctx, address, signInfo)
+	} else if !previous && signed {
+		k.setValidatorSigningBitArray(ctx, address, index, true)
+		signInfo.SignedBlocksCounter++
+		k.setValidatorSigningInfo(ctx, address, signInfo)
+	}
+	minHeight := signInfo.StartHeight + SignedBlocksWindow
+	if height > minHeight && signInfo.SignedBlocksCounter < MinSignedPerWindow {
+		validator := k.stakeKeeper.Validator(ctx, address)
+		validator.Slash(ctx, SlashFractionLiveness)
+		validator.ForceUnbond(ctx, LivenessUnbondDuration)
+		logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v and unbonded for lack-of-liveness at height %d, cannot rebond for %ds",
+			validator.GetAddress(), SlashFractionLiveness, height, LivenessUnbondDuration))
+	}
 }
 
-func (k Keeper) GetValidatorSigningInfo(ctx sdk.Context, address sdk.Address) ValidatorSigningInfo {
-	// TODO
-	panic("todo")
+func (k Keeper) getValidatorSigningInfo(ctx sdk.Context, address sdk.Address) (info validatorSigningInfo) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(validatorSigningInfoKey(address))
+	k.cdc.MustUnmarshalBinary(bz, &info)
+	return
 }
 
-func (k Keeper) setValidatorSigningInfo(ctx sdk.Context, address sdk.Address, info ValidatorSigningInfo) {
-	// TODO
-	panic("todo")
+func (k Keeper) setValidatorSigningInfo(ctx sdk.Context, address sdk.Address, info validatorSigningInfo) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshalBinary(info)
+	store.Set(validatorSigningInfoKey(address), bz)
 }
 
-type ValidatorSigningInfo struct {
-	StartHeight int64 `json:"start_height"`
-	// TODO signed blocks array, separate keys + keep counter + optimizations, update spec
+func (k Keeper) getValidatorSigningBitArray(ctx sdk.Context, address sdk.Address, index int64) (signed bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(validatorSigningBitArrayKey(address, index))
+	k.cdc.MustUnmarshalBinary(bz, &signed)
+	return
+}
+
+func (k Keeper) setValidatorSigningBitArray(ctx sdk.Context, address sdk.Address, index int64, signed bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshalBinary(signed)
+	store.Set(validatorSigningBitArrayKey(address, index), bz)
+}
+
+type validatorSigningInfo struct {
+	StartHeight         int64 `json:"start_height"`
+	SignedBlocksCounter int64 `json:"signed_blocks_counter"`
+}
+
+func validatorSigningInfoKey(v sdk.Address) []byte {
+	return append([]byte{0x01}, v.Bytes()...)
+}
+
+func validatorSigningBitArrayKey(v sdk.Address, i int64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(i))
+	return append([]byte{0x02}, append(v.Bytes(), b...)...)
 }
