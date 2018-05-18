@@ -82,7 +82,7 @@
   branch = "master"
   name = "github.com/golang/snappy"
   packages = ["."]
-  revision = "553a641470496b2327abcac10b36396bd98e45c9"
+  revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -262,7 +262,7 @@
     "server",
     "types"
   ]
-  revision = "435eb273a444af8097369b4686023b5e400b9d01"
+  revision = "e196dacf804e3a4ab74252c27e99cb17b39bf501"
 
 [[projects]]
   branch = "master"

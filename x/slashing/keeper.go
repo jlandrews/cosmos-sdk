@@ -17,18 +17,18 @@ const (
 	// TODO Temporarily set to 2 minutes for testnets.
 	MaxEvidenceAge int64 = 60 * 2
 
-	// SignedBlocksWindow - sliding window for liveness slashing
+	// SignedBlocksWindow - sliding window for downtime slashing
 	// TODO Governance parameter?
 	// TODO Temporarily set to 100 blocks for testnets
 	SignedBlocksWindow int64 = 100
 
-	// Liveness slashing threshold - 50%
+	// Downtime slashing threshold - 50%
 	// TODO Governance parameter?
 	MinSignedPerWindow int64 = SignedBlocksWindow / 2
 
-	// Liveness unbond duration - 1 day
+	// Downtime unbond duration - 1 day
 	// TODO Governance parameter?
-	LivenessUnbondDuration int64 = 86400
+	DowntimeUnbondDuration int64 = 86400
 )
 
 var (
@@ -36,9 +36,9 @@ var (
 	// TODO Governance parameter?
 	SlashFractionDoubleSign = sdk.NewRat(1).Quo(sdk.NewRat(20))
 
-	// SlashFractionLiveness - currently 0
+	// SlashFractionDowntime - currently 0
 	// TODO Governance parameter?
-	SlashFractionLiveness = sdk.ZeroRat()
+	SlashFractionDowntime = sdk.ZeroRat()
 )
 
 // Keeper of the slashing store
@@ -72,7 +72,7 @@ func (k Keeper) handleDoubleSign(ctx sdk.Context, height int64, timestamp int64,
 	}
 	logger.Info(fmt.Sprintf("Confirmed double sign from %v at height %d, age of %d less than max age of %d", pubkey.Address(), height, age, MaxEvidenceAge))
 	validator := k.stakeKeeper.Validator(ctx, pubkey.Address())
-	validator.Slash(ctx, SlashFractionDoubleSign)
+	validator.Slash(ctx, height, SlashFractionDoubleSign)
 	logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v for double-sign at height %d", validator.GetAddress(), SlashFractionDoubleSign, height))
 }
 
@@ -99,10 +99,10 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Context, pubkey crypto.PubKey, 
 	minHeight := signInfo.StartHeight + SignedBlocksWindow
 	if height > minHeight && signInfo.SignedBlocksCounter < MinSignedPerWindow {
 		validator := k.stakeKeeper.Validator(ctx, address)
-		validator.Slash(ctx, SlashFractionLiveness)
-		validator.ForceUnbond(ctx, LivenessUnbondDuration)
-		logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v and unbonded for lack-of-liveness at height %d, cannot rebond for %ds",
-			validator.GetAddress(), SlashFractionLiveness, height, LivenessUnbondDuration))
+		validator.Slash(ctx, height, SlashFractionDowntime)
+		validator.ForceUnbond(ctx, DowntimeUnbondDuration)
+		logger.Info(fmt.Sprintf("Slashed validator %s by fraction %v and unbonded for downtime at height %d, cannot rebond for %ds",
+			validator.GetAddress(), SlashFractionDowntime, height, DowntimeUnbondDuration))
 	}
 }
 

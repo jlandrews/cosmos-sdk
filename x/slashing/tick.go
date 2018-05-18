@@ -1,7 +1,9 @@
 package slashing
 
 import (
+	"bytes"
 	"encoding/binary"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/abci/types"
@@ -16,7 +18,12 @@ func NewBeginBlocker(sk Keeper) sdk.BeginBlocker {
 		for _, evidence := range req.ByzantineValidators {
 			var pk crypto.PubKey
 			sk.cdc.MustUnmarshalBinary(evidence.PubKey, &pk)
-			sk.handleDoubleSign(ctx, evidence.Height, evidence.Time, pk)
+			switch {
+			case bytes.Compare(evidence.Type, []byte("doubleSign")) == 0:
+				sk.handleDoubleSign(ctx, evidence.Height, evidence.Time, pk)
+			default:
+				ctx.Logger().With("module", "x/slashing").Error(fmt.Sprintf("Ignored unknown evidence type: %s", string(evidence.Type)))
+			}
 		}
 		absent := make(map[string]bool)
 		for _, pubkey := range req.AbsentValidators {
@@ -29,7 +36,7 @@ func NewBeginBlocker(sk Keeper) sdk.BeginBlocker {
 			sk.handleValidatorSignature(ctx, pubkey, !absent[string(pubkey.Bytes())])
 			return false
 		})
-		// TODO some tags
+		// TODO Add some more tags so clients can track slashing
 		return abci.ResponseBeginBlock{
 			Tags: tags.ToKVPairs(),
 		}
