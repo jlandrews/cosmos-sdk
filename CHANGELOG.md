@@ -10,6 +10,7 @@ FEATURES
   * Transactions which run out of gas stop execution and revert state changes
   * A "simulate" query has been added to determine how much gas a transaction will need
   * Modules can include their own gas costs for execution of particular message types
+* [x/stake] Added REST API
 
 ## 0.17.0 (May 15, 2018)
 
