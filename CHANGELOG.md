@@ -10,6 +10,7 @@ FEATURES
   * Transactions which run out of gas stop execution and revert state changes
   * A "simulate" query has been added to determine how much gas a transaction will need
   * Modules can include their own gas costs for execution of particular message types
+* [Makefile] Added terraform/ansible playbooks to easily create remote testnets on Digital Ocean
 
 ## 0.17.0 (May 15, 2018)
 
